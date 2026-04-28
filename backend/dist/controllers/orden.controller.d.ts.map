@@ -1,0 +1,1 @@
+{"version":3,"file":"orden.controller.d.ts","sourceRoot":"","sources":["../../src/controllers/orden.controller.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAK5C,eAAO,MAAM,eAAe;eACT,OAAO,OAAO,QAAQ;0BAWX,OAAO,OAAO,QAAQ;wBASxB,OAAO,OAAO,QAAQ;uBAevB,OAAO,OAAO,QAAQ;gBAQ7B,OAAO,OAAO,QAAQ;iBA0BrB,OAAO,OAAO,QAAQ;uBAiBhB,OAAO,OAAO,QAAQ;CAIhD,CAAC"}
