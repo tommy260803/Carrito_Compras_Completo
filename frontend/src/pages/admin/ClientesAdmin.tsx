@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
-const API_URL = 'http://localhost:4000/api/v1';
+const API_URL = 'https://carrito-compras-complete.onrender.com/api/v1';
 
 export const ClientesAdmin: React.FC = () => {
   const [loading, setLoading] = useState(true);

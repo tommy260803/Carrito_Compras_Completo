@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:4000/api/v1';
+const API_URL = 'https://carrito-compras-complete.onrender.com/api/v1';
 
 export const productoService = {
   async getProductos(params?: { page?: number; limit?: number; categoria?: number; search?: string }) {
