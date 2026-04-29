@@ -6,8 +6,7 @@ interface EstadoBadgeProps {
 }
 
 export const EstadoBadge: React.FC<EstadoBadgeProps> = ({ estado, className = '' }) => {
-  const estadoNombre = typeof estado === 'object' ? estado.nombre : String(estado);
-  const estadoId = typeof estado === 'object' ? estado.id : undefined;
+  const estadoNombre = typeof estado === 'object' ? estado.nombre ?? '' : String(estado);
 
   const getBadgeStyle = () => {
     const nombreLower = estadoNombre.toLowerCase();
