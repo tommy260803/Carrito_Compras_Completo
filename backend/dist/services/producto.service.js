@@ -60,9 +60,23 @@ exports.productoService = {
         return producto;
     },
     async create(data, userId) {
+        // Extraer stock para manejarlo por separado
+        const { stock, stock_minimo, ...productoData } = data;
+        // Generar SKU automáticamente si no se proporciona
+        let sku = productoData.sku;
+        if (!sku) {
+            const categoria = await prisma_1.prisma.cat_categorias.findUnique({
+                where: { id: productoData.categoria_id }
+            });
+            const prefix = categoria ? categoria.nombre.substring(0, 3).toUpperCase() : 'PRD';
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            sku = `${prefix}-${random}`;
+        }
         const producto = await prisma_1.prisma.cat_productos.create({
             data: {
-                ...data,
+                ...productoData,
+                sku,
+                stock_minimo: stock_minimo || 0,
                 created_by: userId,
                 updated_by: userId
             },
@@ -72,12 +86,17 @@ exports.productoService = {
                 unidad_medida: true
             }
         });
-        // Crear registro de stock
-        await prisma_1.prisma.inv_stock_producto.create({
-            data: {
+        // Crear registro de stock (usar upsert para evitar duplicados)
+        await prisma_1.prisma.inv_stock_producto.upsert({
+            where: { producto_id: producto.id },
+            update: {
+                cantidad: stock || 0,
+                disponible: stock || 0
+            },
+            create: {
                 producto_id: producto.id,
-                cantidad: data.stock || 0,
-                disponible: data.stock || 0
+                cantidad: stock || 0,
+                disponible: stock || 0
             }
         });
         return producto;
@@ -89,10 +108,13 @@ exports.productoService = {
         if (!productoExistente) {
             throw new AppError_1.AppError('Producto no encontrado', 404);
         }
+        // Extraer stock para manejarlo por separado
+        const { stock, stock_minimo, ...productoData } = data;
         const producto = await prisma_1.prisma.cat_productos.update({
             where: { id },
             data: {
-                ...data,
+                ...productoData,
+                stock_minimo: stock_minimo !== undefined ? stock_minimo : undefined,
                 updated_by: userId
             },
             include: {
@@ -101,6 +123,21 @@ exports.productoService = {
                 unidad_medida: true
             }
         });
+        // Actualizar stock si se proporciona
+        if (stock !== undefined) {
+            await prisma_1.prisma.inv_stock_producto.upsert({
+                where: { producto_id: producto.id },
+                update: {
+                    cantidad: stock,
+                    disponible: stock
+                },
+                create: {
+                    producto_id: producto.id,
+                    cantidad: stock,
+                    disponible: stock
+                }
+            });
+        }
         return producto;
     },
     async delete(id, userId) {

@@ -21,6 +21,14 @@ export declare const carritoService: {
                     alt: string | null;
                     orden: number;
                 }[];
+                stock: {
+                    updated_at: Date;
+                    id: number;
+                    producto_id: number;
+                    cantidad: number;
+                    reservado: number;
+                    disponible: number;
+                } | null;
             } & {
                 nombre: string;
                 activo: boolean;

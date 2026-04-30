@@ -8,11 +8,15 @@ exports.carritoService = {
             where: { cliente_id: clienteId, activo: true },
             include: {
                 items: {
+                    orderBy: {
+                        id: 'asc',
+                    },
                     include: {
                         producto: {
                             include: {
                                 imagenes: true,
                                 categoria: true,
+                                stock: true,
                             },
                         },
                     },
@@ -29,6 +33,7 @@ exports.carritoService = {
                                 include: {
                                     imagenes: true,
                                     categoria: true,
+                                    stock: true,
                                 },
                             },
                         },

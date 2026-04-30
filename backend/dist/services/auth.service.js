@@ -52,7 +52,7 @@ exports.authService = {
         return { accessToken, refreshToken, user: { id: cliente.id, email: cliente.email, rol: 2 } };
     },
     generateAccessToken(user) {
-        return jsonwebtoken_1.default.sign({ id: user.id, email: user.email, rol: user.rol }, config_1.config.JWT_ACCESS_SECRET, { expiresIn: '15m' });
+        return jsonwebtoken_1.default.sign({ id: user.id, email: user.email, rol: user.rol }, config_1.config.JWT_ACCESS_SECRET, { expiresIn: '1h' });
     },
     async generateRefreshToken(userId, rol) {
         const token = jsonwebtoken_1.default.sign({ id: userId, rol }, config_1.config.JWT_REFRESH_SECRET, { expiresIn: '7d' });
@@ -95,7 +95,7 @@ exports.authService = {
             select: { id: true, email: true, nombre: true, apellido: true, rol_id: true, rol: { select: { nombre: true } } },
         });
         if (admin) {
-            return { id: admin.id, email: admin.email, nombre: admin.nombre, apellido: admin.apellido, rol: admin.rol.nombre };
+            return { id: admin.id, email: admin.email, nombre: admin.nombre, apellido: admin.apellido, rol: admin.rol_id };
         }
         const cliente = await prisma_1.prisma.cli_clientes.findUnique({
             where: { id: userId },
@@ -103,7 +103,7 @@ exports.authService = {
         });
         if (!cliente)
             throw new AppError_1.AppError('Usuario no encontrado', 404);
-        return { id: cliente.id, email: cliente.email, nombre: cliente.nombre, apellido: cliente.apellido, telefono: cliente.telefono, rol: 'cliente' };
+        return { id: cliente.id, email: cliente.email, nombre: cliente.nombre, apellido: cliente.apellido, telefono: cliente.telefono, rol: 2 };
     },
 };
 //# sourceMappingURL=auth.service.js.map

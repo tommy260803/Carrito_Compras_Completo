@@ -35,7 +35,7 @@ export declare const authService: {
         email: string;
         nombre: string | null;
         apellido: string | null;
-        rol: string;
+        rol: number;
         telefono?: undefined;
     } | {
         id: number;
@@ -43,7 +43,7 @@ export declare const authService: {
         nombre: string;
         apellido: string;
         telefono: string | null;
-        rol: string;
+        rol: number;
     }>;
 };
 //# sourceMappingURL=auth.service.d.ts.map

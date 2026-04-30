@@ -7,7 +7,7 @@ export const reporteService = {
         _sum: { total: true },
         _avg: { total: true },
       }),
-      prisma.ord_ordenes.count({ where: { estado_id: 1 } }),
+      prisma.ord_ordenes.count({ where: { estado_id: { notIn: [5, 6] } } }),
       prisma.inv_stock_producto.count({ where: { disponible: { lte: 0 } } }),
     ]);
 

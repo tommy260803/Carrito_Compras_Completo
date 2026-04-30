@@ -10,14 +10,14 @@ export declare const registrarPagoSchema: z.ZodObject<{
     orden_id: number;
     metodo: string;
     monto: number;
-    estado?: "pendiente" | "pagado" | "fallido" | "reembolsado" | undefined;
+    estado?: "pagado" | "pendiente" | "fallido" | "reembolsado" | undefined;
     referencia?: string | undefined;
     transaccion_id?: string | undefined;
 }, {
     orden_id: number;
     metodo: string;
     monto: number;
-    estado?: "pendiente" | "pagado" | "fallido" | "reembolsado" | undefined;
+    estado?: "pagado" | "pendiente" | "fallido" | "reembolsado" | undefined;
     referencia?: string | undefined;
     transaccion_id?: string | undefined;
 }>;

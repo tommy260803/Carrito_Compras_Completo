@@ -25,17 +25,17 @@ exports.reporteService = {
       WHERE o.fecha_orden >= ${desde} AND o.fecha_orden <= ${hasta}
       GROUP BY DATE(o.fecha_orden)
       ORDER BY DATE(o.fecha_orden) ASC`;
-        return data.map((row) => ({ fecha: row.fecha, total: Number(row.total ?? 0) }));
+        return data.map((row) => ({ fecha: String(row.fecha), total: Number(row.total ?? 0) }));
     },
     async ventasPorCategoria() {
         const data = await prisma_1.prisma.$queryRaw `
-      SELECT c.nombre as categoria, SUM(oi.cantidad * oi.precio_unitario) as total
-      FROM ord_items_orden oi
-      JOIN cat_productos p ON oi.producto_id = p.id
-      JOIN cat_categorias c ON p.categoria_id = c.id
+      SELECT c.nombre as categoria, COALESCE(SUM(oi.cantidad * oi.precio_unitario), 0) as total
+      FROM cat_categorias c
+      LEFT JOIN cat_productos p ON c.id = p.categoria_id
+      LEFT JOIN ord_items_orden oi ON p.id = oi.producto_id
       GROUP BY c.nombre
       ORDER BY total DESC`;
-        return data.map((row) => ({ categoria: row.categoria, total: Number(row.total ?? 0) }));
+        return data.map((row) => ({ categoria: String(row.categoria), total: Number(row.total ?? 0) }));
     },
     async productosMasVendidos(limit) {
         const data = await prisma_1.prisma.$queryRaw `

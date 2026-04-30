@@ -6,7 +6,7 @@ export declare const reporteService: {
         productosSinStock: number;
     }>;
     ventasDiarias(desde: Date, hasta: Date): Promise<{
-        fecha: Date;
+        fecha: string;
         total: number;
     }[]>;
     ventasPorCategoria(): Promise<{

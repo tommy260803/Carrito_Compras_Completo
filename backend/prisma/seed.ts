@@ -109,7 +109,8 @@ async function main() {
       precio_costo: 800,
       precio_venta: 1200,
       stock_minimo: 5,
-      stock: 25
+      stock: 25,
+      imagen_url: 'https://m.media-amazon.com/images/I/31Z6g+eCEZL._AC_UF1000,1000_QL80_.jpg' // Reemplaza con tu URL
     },
     {
       sku: 'ZAP001',
@@ -121,7 +122,8 @@ async function main() {
       precio_costo: 60,
       precio_venta: 100,
       stock_minimo: 10,
-      stock: 50
+      stock: 50,
+      imagen_url: 'https://www.nike.com.pe/on/demandware.static/-/Sites-catalog-equinox/default/dw54c68f50/images/hi-res/197596413915_1_20240819-mrtPeru.jpg' // Reemplaza con tu URL
     },
     {
       sku: 'LAMP001',
@@ -132,12 +134,13 @@ async function main() {
       precio_costo: 30,
       precio_venta: 60,
       stock_minimo: 8,
-      stock: 30
+      stock: 30,
+      imagen_url: 'https://m.media-amazon.com/images/I/61G+PVE-40L._AC_UF894,1000_QL80_.jpg' // Reemplaza con tu URL
     }
   ];
 
   for (const productoData of productos) {
-    const { stock, ...productoSinStock } = productoData;
+    const { stock, imagen_url, ...productoSinStock } = productoData;
     const producto = await prisma.cat_productos.upsert({
       where: { sku: productoData.sku },
       update: {},
@@ -162,11 +165,11 @@ async function main() {
       }
     });
 
-    // Crear imagen de ejemplo
+    // Crear imagen específica para cada producto
     await prisma.cat_imagenes_producto.create({
       data: {
         producto_id: producto.id,
-        url: `https://via.placeholder.com/400x300?text=${encodeURIComponent(productoData.nombre)}`,
+        url: imagen_url || `https://via.placeholder.com/400x300?text=${encodeURIComponent(productoData.nombre)}`,
         alt: productoData.nombre,
         orden: 0
       }

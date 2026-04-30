@@ -1,13 +1,13 @@
 import { z } from 'zod';
 export declare const createProductoSchema: z.ZodObject<{
-    sku: z.ZodString;
+    sku: z.ZodOptional<z.ZodString>;
     nombre: z.ZodString;
     descripcion_corta: z.ZodOptional<z.ZodString>;
     descripcion_larga: z.ZodOptional<z.ZodString>;
     categoria_id: z.ZodNumber;
     marca_id: z.ZodOptional<z.ZodNumber>;
     unidad_medida_id: z.ZodOptional<z.ZodNumber>;
-    precio_costo: z.ZodNumber;
+    precio_costo: z.ZodOptional<z.ZodNumber>;
     precio_venta: z.ZodNumber;
     precio_oferta: z.ZodOptional<z.ZodNumber>;
     oferta_inicio: z.ZodOptional<z.ZodString>;
@@ -15,19 +15,22 @@ export declare const createProductoSchema: z.ZodObject<{
     peso: z.ZodOptional<z.ZodNumber>;
     dimensiones: z.ZodOptional<z.ZodString>;
     stock_minimo: z.ZodDefault<z.ZodNumber>;
+    activo: z.ZodDefault<z.ZodBoolean>;
+} & {
     stock: z.ZodDefault<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     nombre: string;
-    sku: string;
+    activo: boolean;
     categoria_id: number;
-    precio_costo: number;
     precio_venta: number;
     stock_minimo: number;
     stock: number;
+    sku?: string | undefined;
     descripcion_corta?: string | undefined;
     descripcion_larga?: string | undefined;
     marca_id?: number | undefined;
     unidad_medida_id?: number | undefined;
+    precio_costo?: number | undefined;
     precio_oferta?: number | undefined;
     oferta_inicio?: string | undefined;
     oferta_fin?: string | undefined;
@@ -35,14 +38,15 @@ export declare const createProductoSchema: z.ZodObject<{
     dimensiones?: string | undefined;
 }, {
     nombre: string;
-    sku: string;
     categoria_id: number;
-    precio_costo: number;
     precio_venta: number;
+    activo?: boolean | undefined;
+    sku?: string | undefined;
     descripcion_corta?: string | undefined;
     descripcion_larga?: string | undefined;
     marca_id?: number | undefined;
     unidad_medida_id?: number | undefined;
+    precio_costo?: number | undefined;
     precio_oferta?: number | undefined;
     oferta_inicio?: string | undefined;
     oferta_fin?: string | undefined;
@@ -52,14 +56,14 @@ export declare const createProductoSchema: z.ZodObject<{
     stock?: number | undefined;
 }>;
 export declare const updateProductoSchema: z.ZodObject<{
-    sku: z.ZodOptional<z.ZodString>;
+    sku: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     nombre: z.ZodOptional<z.ZodString>;
     descripcion_corta: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     descripcion_larga: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     categoria_id: z.ZodOptional<z.ZodNumber>;
     marca_id: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
     unidad_medida_id: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
-    precio_costo: z.ZodOptional<z.ZodNumber>;
+    precio_costo: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
     precio_venta: z.ZodOptional<z.ZodNumber>;
     precio_oferta: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
     oferta_inicio: z.ZodOptional<z.ZodOptional<z.ZodString>>;
@@ -67,9 +71,12 @@ export declare const updateProductoSchema: z.ZodObject<{
     peso: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
     dimensiones: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     stock_minimo: z.ZodOptional<z.ZodDefault<z.ZodNumber>>;
-    stock: z.ZodOptional<z.ZodDefault<z.ZodNumber>>;
+    activo: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
+} & {
+    stock: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     nombre?: string | undefined;
+    activo?: boolean | undefined;
     sku?: string | undefined;
     descripcion_corta?: string | undefined;
     descripcion_larga?: string | undefined;
@@ -87,6 +94,7 @@ export declare const updateProductoSchema: z.ZodObject<{
     stock?: number | undefined;
 }, {
     nombre?: string | undefined;
+    activo?: boolean | undefined;
     sku?: string | undefined;
     descripcion_corta?: string | undefined;
     descripcion_larga?: string | undefined;

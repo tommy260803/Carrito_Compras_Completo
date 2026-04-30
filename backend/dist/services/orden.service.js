@@ -30,9 +30,9 @@ exports.ordenService = {
         return await prisma_1.prisma.$transaction(async (tx) => {
             // Reservar stock (si existe registro; si no, crearlo)
             for (const item of itemsCarrito) {
-                const stock = await tx.inv_stock_producto.findUnique({ where: { producto_id: item.producto_id } });
+                let stock = await tx.inv_stock_producto.findUnique({ where: { producto_id: item.producto_id } });
                 if (!stock) {
-                    await tx.inv_stock_producto.create({
+                    stock = await tx.inv_stock_producto.create({
                         data: {
                             producto_id: item.producto_id,
                             cantidad: 0,
@@ -44,7 +44,7 @@ exports.ordenService = {
                 else {
                     const nuevoReservado = stock.reservado + item.cantidad;
                     const nuevoDisponible = Math.max(0, stock.cantidad - nuevoReservado);
-                    await tx.inv_stock_producto.update({
+                    stock = await tx.inv_stock_producto.update({
                         where: { producto_id: item.producto_id },
                         data: { reservado: nuevoReservado, disponible: nuevoDisponible },
                     });
