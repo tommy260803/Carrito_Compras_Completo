@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface ShopNavbarProps {
   carritoCount?: number;
@@ -21,36 +21,36 @@ export const ShopNavbar: React.FC<ShopNavbarProps> = ({ carritoCount = 0 }) => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <a href="/" className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2">
               <div className="bg-blue-600 text-white p-2 rounded-lg">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
               </div>
               <span className="text-xl font-bold text-gray-900">MiTienda</span>
-            </a>
+            </Link>
           </div>
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="/" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Inicio
-            </a>
-            <a href="/catalogo" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            </Link>
+            <Link to="/catalogo" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Catálogo
-            </a>
-            <a href="/mis-ordenes" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            </Link>
+            <Link to="/mis-ordenes" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Mis Órdenes
-            </a>
-            <a href="/wishlist" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            </Link>
+            <Link to="/wishlist" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Lista de Deseos
-            </a>
+            </Link>
           </div>
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
             {/* Cart */}
-            <a href="/carrito" className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors">
+            <Link to="/carrito" className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
@@ -59,7 +59,7 @@ export const ShopNavbar: React.FC<ShopNavbarProps> = ({ carritoCount = 0 }) => {
                   {carritoCount}
                 </span>
               )}
-            </a>
+            </Link>
 
             {/* User */}
             <div className="flex items-center space-x-3">
@@ -80,9 +80,9 @@ export const ShopNavbar: React.FC<ShopNavbarProps> = ({ carritoCount = 0 }) => {
       {/* Mobile menu button */}
       <div className="md:hidden flex justify-between items-center px-4 py-2 border-t">
         <div className="flex space-x-4">
-          <a href="/" className="text-gray-700 hover:text-blue-600">Inicio</a>
-          <a href="/catalogo" className="text-gray-700 hover:text-blue-600">Catálogo</a>
-          <a href="/mis-ordenes" className="text-gray-700 hover:text-blue-600">Órdenes</a>
+          <Link to="/" className="text-gray-700 hover:text-blue-600">Inicio</Link>
+          <Link to="/catalogo" className="text-gray-700 hover:text-blue-600">Catálogo</Link>
+          <Link to="/mis-ordenes" className="text-gray-700 hover:text-blue-600">Órdenes</Link>
         </div>
       </div>
     </nav>
