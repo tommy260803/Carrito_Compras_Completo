@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const fallbackApiUrl = import.meta.env.DEV
+  ? 'http://localhost:4000/api/v1'
+  : 'https://carrito-compras-complete.onrender.com/api/v1';
+
+export const API_URL = import.meta.env.VITE_API_URL ?? fallbackApiUrl;
 
 const api = axios.create({
   baseURL: API_URL,

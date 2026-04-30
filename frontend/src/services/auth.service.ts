@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = 'https://carrito-compras-complete.onrender.com/api/v1';
+import { API_URL } from './api';
 
 // Crear instancia de axios para auth (sin token para login/register)
 const authClient = axios.create({
