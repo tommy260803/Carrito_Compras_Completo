@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-
-const API_URL = 'https://carrito-compras-complete.onrender.com/api/v1';
+import api from '../../services/api';
 
 export const ClientesAdmin: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -12,10 +11,8 @@ export const ClientesAdmin: React.FC = () => {
     try {
       setLoading(true);
       const params = q ? `?search=${encodeURIComponent(q)}` : '';
-      const res = await fetch(`${API_URL}/clientes/admin${params}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token') ?? ''}` },
-      });
-      const json = await res.json();
+      const res = await api.get(`/clientes/admin${params}`);
+      const json = res.data;
       setClientes(json.data ?? []);
     } catch (e) {
       toast.error('No se pudieron cargar clientes');

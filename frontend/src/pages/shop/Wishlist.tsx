@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-
-const API_URL = 'https://carrito-compras-complete.onrender.com/api/v1';
+import api from '../../services/api';
 
 export const Wishlist: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -10,10 +9,8 @@ export const Wishlist: React.FC = () => {
   const cargar = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/wishlist`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token') ?? ''}` },
-      });
-      const json = await res.json();
+      const res = await api.get('/wishlist');
+      const json = res.data;
       const productos = json.data?.productos ?? [];
       setItems(productos);
     } catch (e) {
@@ -29,10 +26,7 @@ export const Wishlist: React.FC = () => {
 
   const quitar = async (productoId: number) => {
     try {
-      await fetch(`${API_URL}/wishlist/items/${productoId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token') ?? ''}` },
-      });
+      await api.delete(`/wishlist/items/${productoId}`);
       toast.success('Eliminado de wishlist');
       cargar();
     } catch (e) {

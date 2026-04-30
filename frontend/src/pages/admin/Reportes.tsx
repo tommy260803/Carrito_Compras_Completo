@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { reportesService } from '../../services/reportes.service';
-
-const API_URL = 'https://carrito-compras-complete.onrender.com/api/v1';
+import api from '../../services/api';
 
 export const Reportes: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -14,10 +13,9 @@ export const Reportes: React.FC = () => {
     (async () => {
       try {
         setLoading(true);
-        const headers = { Authorization: `Bearer ${localStorage.getItem('access_token') ?? ''}` };
         const [k, t] = await Promise.all([
-          fetch(`${API_URL}/reportes/kpis`, { headers }).then((r) => r.json()),
-          fetch(`${API_URL}/reportes/productos-mas-vendidos?limit=10`, { headers }).then((r) => r.json()),
+          api.get('/reportes/kpis').then((r) => r.data),
+          api.get('/reportes/productos-mas-vendidos?limit=10').then((r) => r.data),
         ]);
         setKpis(k.data);
         setTop(t.data ?? []);
