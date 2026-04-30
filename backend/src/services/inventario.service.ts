@@ -80,30 +80,34 @@ export const inventarioService = {
       throw new AppError('Stock no encontrado para este producto', 404);
     }
 
-    const nuevoDisponible = stock.disponible + cantidad;
+    const nuevoDisponible = cantidad;
+    const diferencia = nuevoDisponible - stock.disponible;
+    const nuevaCantidad = stock.cantidad + diferencia;
 
-    if (nuevoDisponible < 0) {
-      throw new AppError('Stock no puede ser negativo', 400);
+    if (nuevaCantidad < 0) {
+      throw new AppError('Cantidad total de stock no puede ser negativa', 400);
     }
 
     const updatedStock = await prisma.inv_stock_producto.update({
       where: { producto_id: productoId },
       data: {
-        cantidad: stock.cantidad + cantidad,
+        cantidad: nuevaCantidad,
         disponible: nuevoDisponible
       }
     });
 
-    // Registrar movimiento
-    await prisma.inv_movimientos_inventario.create({
-      data: {
-        producto_id: productoId,
-        tipo: cantidad > 0 ? 'entrada' : 'salida',
-        cantidad: Math.abs(cantidad),
-        referencia: 'Ajuste manual',
-        usuario_id: userId
-      }
-    });
+    // Registrar movimiento solo cuando hubo cambio real.
+    if (diferencia !== 0) {
+      await prisma.inv_movimientos_inventario.create({
+        data: {
+          producto_id: productoId,
+          tipo: diferencia > 0 ? 'entrada' : 'salida',
+          cantidad: Math.abs(diferencia),
+          referencia: 'Ajuste manual',
+          usuario_id: userId
+        }
+      });
+    }
 
     return updatedStock;
   },

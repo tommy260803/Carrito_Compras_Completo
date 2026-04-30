@@ -2,6 +2,22 @@ import { prisma } from '../config/prisma';
 import { agregarItemDto, actualizarItemDto } from '../schemas/carrito.schema';
 
 export const carritoService = {
+  async obtenerOCrearCarritoId(clienteId: number) {
+    const carrito = await prisma.ord_carritos.findFirst({
+      where: { cliente_id: clienteId, activo: true },
+      select: { id: true },
+    });
+
+    if (carrito) return carrito.id;
+
+    const creado = await prisma.ord_carritos.create({
+      data: { cliente_id: clienteId },
+      select: { id: true },
+    });
+
+    return creado.id;
+  },
+
   async obtenerCarrito(clienteId: number) {
     let carrito = await prisma.ord_carritos.findFirst({
       where: { cliente_id: clienteId, activo: true },
@@ -46,11 +62,11 @@ export const carritoService = {
   },
 
   async agregarItem(clienteId: number, data: agregarItemDto) {
-    const carrito = await this.obtenerCarrito(clienteId);
+    const carritoId = await this.obtenerOCrearCarritoId(clienteId);
     
     const itemExistente = await prisma.ord_items_carrito.findFirst({
       where: {
-        carrito_id: carrito.id,
+        carrito_id: carritoId,
         producto_id: data.producto_id,
       },
     });
@@ -72,7 +88,7 @@ export const carritoService = {
 
     return await prisma.ord_items_carrito.create({
       data: {
-        carrito_id: carrito.id,
+        carrito_id: carritoId,
         producto_id: data.producto_id,
         cantidad: data.cantidad,
       },
@@ -109,9 +125,9 @@ export const carritoService = {
   },
 
   async vaciarCarrito(clienteId: number) {
-    const carrito = await this.obtenerCarrito(clienteId);
+    const carritoId = await this.obtenerOCrearCarritoId(clienteId);
     await prisma.ord_items_carrito.deleteMany({
-      where: { carrito_id: carrito.id },
+      where: { carrito_id: carritoId },
     });
   },
 };

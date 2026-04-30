@@ -3,7 +3,7 @@ import { inventarioService } from '../services/inventario.service';
 import { z } from 'zod';
 
 const ajustarSchema = z.object({
-  cantidad: z.number().int(),
+  cantidad: z.number().int().min(0),
 });
 
 const stockMinimoSchema = z.object({

@@ -48,8 +48,8 @@ export const InventarioAdmin: React.FC = () => {
     cargar();
   }, []);
 
-  const ajustarStock = async (productoId: number) => {
-    const raw = prompt('Nueva cantidad disponible (número entero >= 0):');
+  const ajustarStock = async (productoId: number, disponibleActual: number) => {
+    const raw = prompt('Nueva cantidad disponible (número entero >= 0):', String(disponibleActual));
     if (raw === null) return;
     const cantidad = Number(raw);
     if (!Number.isFinite(cantidad) || cantidad < 0) {
@@ -181,7 +181,7 @@ export const InventarioAdmin: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm font-medium flex items-center gap-2">
-                      <button className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700" onClick={() => ajustarStock(p.id)}>
+                      <button className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700" onClick={() => ajustarStock(p.id, disponible)}>
                         Ajustar
                       </button>
                       <button className="inline-flex items-center px-3 py-1 bg-green-50 text-green-600 text-sm rounded hover:bg-green-100" onClick={() => actualizarStockMinimo(p.id, minimo)}>

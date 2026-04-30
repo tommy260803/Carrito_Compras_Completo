@@ -25,6 +25,7 @@ interface Carrito {
 export const Carrito: React.FC = () => {
   const [carrito, setCarrito] = useState<Carrito | null>(null);
   const [loading, setLoading] = useState(true);
+  const [actualizandoItems, setActualizandoItems] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     cargarCarrito();
@@ -45,25 +46,51 @@ export const Carrito: React.FC = () => {
 
   const actualizarCantidad = async (itemId: number, nuevaCantidad: number) => {
     if (nuevaCantidad < 1) return;
+
+    const carritoPrevio = carrito;
+    setActualizandoItems((prev) => ({ ...prev, [itemId]: true }));
+
+    setCarrito((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        items: prev.items.map((item) =>
+          item.id === itemId ? { ...item, cantidad: nuevaCantidad } : item
+        ),
+      };
+    });
     
     try {
       await carritoService.actualizarItem(itemId, { cantidad: nuevaCantidad });
-      toast.success('Cantidad actualizada');
-      cargarCarrito();
     } catch (error) {
+      setCarrito(carritoPrevio);
       toast.error('Error al actualizar cantidad');
       console.error(error);
+    } finally {
+      setActualizandoItems((prev) => ({ ...prev, [itemId]: false }));
     }
   };
 
   const eliminarItem = async (itemId: number) => {
+    const carritoPrevio = carrito;
+    setActualizandoItems((prev) => ({ ...prev, [itemId]: true }));
+
+    setCarrito((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        items: prev.items.filter((item) => item.id !== itemId),
+      };
+    });
+
     try {
       await carritoService.eliminarItem(itemId);
-      toast.success('Producto eliminado del carrito');
-      cargarCarrito();
     } catch (error) {
+      setCarrito(carritoPrevio);
       toast.error('Error al eliminar producto');
       console.error(error);
+    } finally {
+      setActualizandoItems((prev) => ({ ...prev, [itemId]: false }));
     }
   };
 
@@ -159,15 +186,16 @@ export const Carrito: React.FC = () => {
                               <div className="flex items-center space-x-2">
                                 <button 
                                   onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
-                                  className="w-9 h-9 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center font-bold text-gray-700"
+                                  disabled={actualizandoItems[item.id]}
+                                  className="w-9 h-9 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center font-bold text-gray-700 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                                 >
                                   -
                                 </button>
                                 <span className="w-10 text-center text-lg font-semibold">{item.cantidad}</span>
                                 <button 
                                   onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
-                                  disabled={item.cantidad >= stockDisponible}
-                                  className="w-9 h-9 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center font-bold text-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                  disabled={item.cantidad >= stockDisponible || actualizandoItems[item.id]}
+                                  className="w-9 h-9 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center font-bold text-gray-700 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                                 >
                                   +
                                 </button>
@@ -180,7 +208,8 @@ export const Carrito: React.FC = () => {
 
                               <button 
                                 onClick={() => eliminarItem(item.id)}
-                                className="text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1"
+                                disabled={actualizandoItems[item.id]}
+                                className="text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1 disabled:text-gray-400 disabled:cursor-not-allowed"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

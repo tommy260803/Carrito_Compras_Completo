@@ -19,17 +19,26 @@ interface CantidadEnCarrito {
   [productoId: number]: number;
 }
 
+interface ItemIdEnCarrito {
+  [productoId: number]: number;
+}
+
 export const Catalogo: React.FC = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
   const [carritoCount, setCarritoCount] = useState(0);
   const [cantidadesEnCarrito, setCantidadesEnCarrito] = useState<CantidadEnCarrito>({});
+  const [itemIdsEnCarrito, setItemIdsEnCarrito] = useState<ItemIdEnCarrito>({});
+  const [actualizandoProducto, setActualizandoProducto] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     cargarProductos();
-    cargarCantidadesCarrito();
   }, [categoriaSeleccionada]);
+
+  useEffect(() => {
+    cargarCantidadesCarrito();
+  }, []);
 
   const cargarProductos = async () => {
     try {
@@ -50,10 +59,13 @@ export const Catalogo: React.FC = () => {
       const response = await carritoService.getCarrito();
       const items = response.data?.items || [];
       const cantidades: CantidadEnCarrito = {};
+      const itemIds: ItemIdEnCarrito = {};
       items.forEach((item: any) => {
         cantidades[item.producto.id] = item.cantidad;
+        itemIds[item.producto.id] = item.id;
       });
       setCantidadesEnCarrito(cantidades);
+      setItemIdsEnCarrito(itemIds);
       setCarritoCount(items.length);
     } catch (error) {
       console.error('Error al cargar cantidades del carrito');
@@ -61,41 +73,88 @@ export const Catalogo: React.FC = () => {
   };
 
   const agregarAlCarrito = async (productoId: number) => {
+    if (actualizandoProducto[productoId]) return;
+
+    const itemIdExistente = itemIdsEnCarrito[productoId];
+    const cantidadPrev = cantidadesEnCarrito[productoId] || 0;
+    const cantidadNueva = cantidadPrev + 1;
+
+    setActualizandoProducto((prev) => ({ ...prev, [productoId]: true }));
+    setCantidadesEnCarrito((prev) => ({ ...prev, [productoId]: cantidadNueva }));
+    if (cantidadPrev === 0) {
+      setCarritoCount((prev) => prev + 1);
+    }
+
     try {
-      await carritoService.agregarItem({ producto_id: productoId, cantidad: 1 });
-      toast.success('Producto agregado al carrito');
-      cargarCantidadesCarrito();
+      if (itemIdExistente) {
+        await carritoService.actualizarItem(itemIdExistente, { cantidad: cantidadNueva });
+      } else {
+        const response = await carritoService.agregarItem({ producto_id: productoId, cantidad: 1 });
+        const nuevoItemId = response?.data?.id;
+        if (nuevoItemId) {
+          setItemIdsEnCarrito((prev) => ({ ...prev, [productoId]: nuevoItemId }));
+        }
+      }
     } catch (error) {
+      setCantidadesEnCarrito((prev) => ({ ...prev, [productoId]: cantidadPrev }));
+      if (cantidadPrev === 0) {
+        setCarritoCount((prev) => Math.max(prev - 1, 0));
+      }
       toast.error('Error al agregar al carrito');
       console.error(error);
+    } finally {
+      setActualizandoProducto((prev) => ({ ...prev, [productoId]: false }));
     }
   };
 
   const actualizarCantidadEnCarrito = async (productoId: number, nuevaCantidad: number) => {
-    if (nuevaCantidad < 0) return;
+    if (nuevaCantidad < 0 || actualizandoProducto[productoId]) return;
+
+    const itemId = itemIdsEnCarrito[productoId];
+    const cantidadPrev = cantidadesEnCarrito[productoId] || 0;
+
+    if (!itemId && nuevaCantidad === 0) return;
+
+    setActualizandoProducto((prev) => ({ ...prev, [productoId]: true }));
+    setCantidadesEnCarrito((prev) => ({ ...prev, [productoId]: nuevaCantidad }));
+    if (cantidadPrev > 0 && nuevaCantidad === 0) {
+      setCarritoCount((prev) => Math.max(prev - 1, 0));
+    }
+    if (cantidadPrev === 0 && nuevaCantidad > 0) {
+      setCarritoCount((prev) => prev + 1);
+    }
     
     try {
-      const response = await carritoService.getCarrito();
-      const items = response.data?.items || [];
-      const item = items.find((i: any) => i.producto.id === productoId);
-      
-      if (item) {
+      if (itemId) {
         if (nuevaCantidad === 0) {
-          await carritoService.eliminarItem(item.id);
-          toast.success('Producto eliminado del carrito');
+          await carritoService.eliminarItem(itemId);
+          setItemIdsEnCarrito((prev) => {
+            const copy = { ...prev };
+            delete copy[productoId];
+            return copy;
+          });
         } else {
-          await carritoService.actualizarItem(item.id, { cantidad: nuevaCantidad });
-          toast.success('Cantidad actualizada');
+          await carritoService.actualizarItem(itemId, { cantidad: nuevaCantidad });
         }
       } else if (nuevaCantidad > 0) {
-        await carritoService.agregarItem({ producto_id: productoId, cantidad: nuevaCantidad });
-        toast.success('Producto agregado al carrito');
+        const response = await carritoService.agregarItem({ producto_id: productoId, cantidad: nuevaCantidad });
+        const nuevoItemId = response?.data?.id;
+        if (nuevoItemId) {
+          setItemIdsEnCarrito((prev) => ({ ...prev, [productoId]: nuevoItemId }));
+        }
       }
-      
-      cargarCantidadesCarrito();
     } catch (error) {
+      setCantidadesEnCarrito((prev) => ({ ...prev, [productoId]: cantidadPrev }));
+      if (cantidadPrev > 0 && nuevaCantidad === 0) {
+        setCarritoCount((prev) => prev + 1);
+      }
+      if (cantidadPrev === 0 && nuevaCantidad > 0) {
+        setCarritoCount((prev) => Math.max(prev - 1, 0));
+      }
       toast.error('Error al actualizar cantidad');
       console.error(error);
+    } finally {
+      setActualizandoProducto((prev) => ({ ...prev, [productoId]: false }));
     }
   };
 
@@ -238,7 +297,8 @@ export const Catalogo: React.FC = () => {
                       <div className="flex items-center justify-between bg-blue-50 rounded-lg p-2">
                         <button 
                           onClick={() => actualizarCantidadEnCarrito(producto.id, cantidadEnCarrito - 1)}
-                          className="w-10 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center font-bold"
+                          disabled={actualizandoProducto[producto.id]}
+                          className="w-10 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center font-bold disabled:bg-gray-300 disabled:cursor-not-allowed"
                         >
                           -
                         </button>
@@ -247,7 +307,7 @@ export const Catalogo: React.FC = () => {
                         </span>
                         <button 
                           onClick={() => actualizarCantidadEnCarrito(producto.id, cantidadEnCarrito + 1)}
-                          disabled={cantidadEnCarrito >= stockDisponible}
+                          disabled={cantidadEnCarrito >= stockDisponible || actualizandoProducto[producto.id]}
                           className="w-10 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center font-bold disabled:bg-gray-300 disabled:cursor-not-allowed"
                         >
                           +
@@ -256,7 +316,8 @@ export const Catalogo: React.FC = () => {
                     ) : (
                       <button 
                         onClick={() => agregarAlCarrito(producto.id)}
-                        className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                        disabled={actualizandoProducto[producto.id]}
+                        className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
