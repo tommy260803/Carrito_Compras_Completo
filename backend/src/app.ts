@@ -18,7 +18,19 @@ const allowedOrigins = new Set(
 
 const corsOptions = {
   origin(origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
-    if (!origin || allowedOrigins.has(origin)) {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    // Allow exact matches
+    if (allowedOrigins.has(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    // Allow any vercel.app preview deployments
+    if (origin.endsWith('.vercel.app')) {
       callback(null, true);
       return;
     }
